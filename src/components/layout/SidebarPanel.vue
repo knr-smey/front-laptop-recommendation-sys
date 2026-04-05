@@ -94,11 +94,7 @@ const iconMap = {
   >
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="relative grid h-11 w-11 place-items-center rounded-full bg-[linear-gradient(135deg,#eec9ab,#d88f6c)] text-sm font-semibold text-white">
-          LR
-          <span :class="['absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 bg-emerald-400', isDark ? 'border-slate-950' : 'border-white']"></span>
-        </div>
-
+        
         <div>
           <p class="text-[18px] font-semibold tracking-[-0.02em]">Laptop Recommender</p>
         </div>
