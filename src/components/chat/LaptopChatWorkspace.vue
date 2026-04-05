@@ -1,7 +1,7 @@
 <script setup>
 import { computed, reactive } from 'vue'
 import {
-  messages,
+  laptopCatalog,
   preferenceGroups,
   quickActions,
   suggestionCard,
@@ -23,14 +23,36 @@ const selectedPreferenceSummary = computed(() =>
   })),
 )
 
+const rankedLaptops = computed(() =>
+  [...laptopCatalog]
+    .map((laptop) => {
+      let score = 0
+      if (laptop.brand === selectedPreferences.brand) score += 3
+      if (laptop.budget === selectedPreferences.budget) score += 3
+      if (laptop.ram === selectedPreferences.ram) score += 2
+      if (laptop.type === selectedPreferences.type) score += 3
+      if (laptop.screen === selectedPreferences.screen) score += 1
+
+      return { ...laptop, score }
+    })
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3),
+)
+
+const recommendationInsight = computed(() => {
+  const top = rankedLaptops.value[0]
+
+  if (!top) {
+    return 'Pick preferences to generate recommendation cards.'
+  }
+
+  return `${top.name} is the strongest match right now because it fits your ${selectedPreferences.type.toLowerCase()} use case, ${selectedPreferences.ram} memory target, and ${selectedPreferences.budget} budget range.`
+})
+
 const iconMap = {
   sparkles: {
     viewBox: '0 0 24 24',
     paths: ['M12 3.5 13.8 8.2 18.5 10 13.8 11.8 12 16.5 10.2 11.8 5.5 10 10.2 8.2Z', 'M18.5 3.5v3', 'M20 5h-3', 'M4 15.5v5', 'M6.5 18H1.5'],
-  },
-  send: {
-    viewBox: '0 0 24 24',
-    paths: ['m4 12 15-7-3 7 3 7-15-7Z', 'M16 12H8'],
   },
   paperclip: {
     viewBox: '0 0 24 24',
@@ -71,14 +93,14 @@ const iconMap = {
           <div>
             <p class="text-sm font-semibold uppercase tracking-[0.28em] text-sky-500">Recommendation Engine</p>
             <h1 class="mt-1 text-2xl font-semibold tracking-[-0.04em] text-slate-950">
-              Laptop Recommendation Chat
+              Laptop Recommendation Workspace
             </h1>
           </div>
         </div>
       </header>
 
-      <section class="grid flex-1 gap-6 px-4 py-4 md:px-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div class="flex min-h-0 flex-col rounded-[28px] border border-slate-200/70 bg-white/80">
+      <section class="grid gap-6 px-4 py-4 md:px-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div class="rounded-[28px] border border-slate-200/70 bg-white/80">
           <div class="border-b border-slate-200/70 px-5 py-4 md:px-6">
             <div class="flex flex-wrap items-center justify-between gap-3">
               <div>
@@ -86,18 +108,18 @@ const iconMap = {
                   Find the right laptop for each user
                 </p>
                 <p class="mt-1 text-sm text-slate-500">
-                  Rank models by budget, use case, specs, and buying priorities.
+                  See the recommendation results immediately instead of an empty chat area.
                 </p>
               </div>
 
               <div class="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-500">
                 <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-                Recommendation model active
+                Ranking engine active
               </div>
             </div>
           </div>
 
-          <div class="no-scrollbar flex-1 space-y-6 overflow-y-auto px-5 py-6 md:px-6">
+          <div class="space-y-6 px-5 py-6 md:px-6">
             <div class="grid gap-3 md:grid-cols-2">
               <button
                 v-for="action in quickActions"
@@ -109,75 +131,124 @@ const iconMap = {
               </button>
             </div>
 
-            <article
-              v-for="message in messages"
-              :key="`${message.author}-${message.time}`"
-              :class="[
-                'flex gap-4',
-                message.role === 'user' ? 'justify-end' : 'justify-start',
-              ]"
-            >
-              <template v-if="message.role === 'assistant'">
-                <div
-                  class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#1da1ff,#0f7cff)] text-sm font-semibold text-white shadow-[0_10px_24px_rgba(14,116,255,0.22)]"
-                >
-                  AI
-                </div>
-              </template>
-
-              <div
-                :class="[
-                  'max-w-[760px] rounded-[24px] px-5 py-4 shadow-[0_12px_28px_rgba(15,23,42,0.04)]',
-                  message.role === 'user'
-                    ? 'bg-[linear-gradient(180deg,#1797ff,#0e82ff)] text-white'
-                    : 'border border-slate-200/70 bg-white text-slate-800',
-                ]"
-              >
-                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em]">
-                  <span :class="message.role === 'user' ? 'text-blue-100' : 'text-sky-500'">
-                    {{ message.author }}
-                  </span>
-                  <span :class="message.role === 'user' ? 'text-blue-100/70' : 'text-slate-400'">
-                    {{ message.time }}
-                  </span>
+            <div class="rounded-[26px] border border-slate-200/70 bg-[linear-gradient(180deg,#f8fbff,#f2f7fd)] p-5">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="max-w-xl">
+                  <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">
+                    Live Recommendation Summary
+                  </p>
+                  <h3 class="mt-2 text-2xl font-semibold tracking-[-0.03em] text-slate-950">
+                    Top matches based on your current picks
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-slate-600">
+                    {{ recommendationInsight }}
+                  </p>
                 </div>
 
-                <p
-                  :class="[
-                    'mt-3 text-[15px] leading-7',
-                    message.role === 'user' ? 'text-white' : 'text-slate-600',
-                  ]"
-                >
-                  {{ message.text }}
-                </p>
+                <div class="rounded-2xl bg-white px-4 py-3 shadow-[0_10px_24px_rgba(15,23,42,0.05)]">
+                  <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    Active profile
+                  </p>
+                  <div class="mt-3 flex max-w-[260px] flex-wrap gap-2">
+                    <span
+                      v-for="item in selectedPreferenceSummary"
+                      :key="item.label"
+                      class="rounded-full bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-700"
+                    >
+                      {{ item.value }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                <div v-if="message.chips" class="mt-4 flex flex-wrap gap-2">
-                  <span
-                    v-for="chip in message.chips"
-                    :key="chip"
-                    class="rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600"
-                  >
-                    {{ chip }}
-                  </span>
+            <div>
+              <div class="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">
+                    Ranked Results
+                  </p>
+                  <h3 class="mt-1 text-xl font-semibold tracking-[-0.03em] text-slate-950">
+                    Recommended laptops
+                  </h3>
+                </div>
+
+                <div class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-500">
+                  {{ rankedLaptops.length }} matches
                 </div>
               </div>
 
-              <template v-if="message.role === 'user'">
-                <div
-                  class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(135deg,#ffd6b0,#efa06a)] text-sm font-semibold text-white"
+              <div class="grid gap-4 xl:grid-cols-3">
+                <article
+                  v-for="laptop in rankedLaptops"
+                  :key="laptop.id"
+                  class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_14px_30px_rgba(15,23,42,0.04)]"
                 >
-                  You
-                </div>
-              </template>
-            </article>
-          </div>
+                  <div class="flex items-start justify-between gap-3">
+                    <div>
+                      <span class="rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700">
+                        {{ laptop.badge }}
+                      </span>
+                      <h4 class="mt-3 text-lg font-semibold tracking-[-0.03em] text-slate-950">
+                        {{ laptop.name }}
+                      </h4>
+                      <p class="mt-1 text-sm text-slate-500">{{ laptop.price }}</p>
+                    </div>
 
-          <div class="border-t border-slate-200/70 px-5 py-4 md:px-6">
+                    <div class="rounded-2xl bg-slate-100 px-3 py-2 text-sm font-semibold text-slate-700">
+                      {{ laptop.score }}/12
+                    </div>
+                  </div>
+
+                  <div class="mt-4 space-y-3 text-sm text-slate-600">
+                    <div class="flex items-center justify-between gap-4">
+                      <span>CPU</span>
+                      <span class="font-medium text-slate-900">{{ laptop.cpu }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                      <span>GPU</span>
+                      <span class="font-medium text-slate-900">{{ laptop.gpu }}</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-4">
+                      <span>Battery</span>
+                      <span class="font-medium text-slate-900">{{ laptop.battery }}</span>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                      {{ laptop.brand }}
+                    </span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                      {{ laptop.type }}
+                    </span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                      {{ laptop.ram }}
+                    </span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-700">
+                      {{ laptop.screen }}
+                    </span>
+                  </div>
+                </article>
+              </div>
+            </div>
+
+            <div class="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
+              <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">
+                Recommendation note
+              </p>
+              <p class="mt-3 text-[15px] leading-7 text-slate-600">
+                Gaming-focused 15.6-inch laptops with 16GB RAM are winning under your current
+                budget. If you want lighter weight and longer battery life, switch `Type` to
+                `Normal` or `Student`.
+              </p>
+            </div>
+
             <div class="rounded-[28px] border border-slate-200 bg-white p-3 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
               <textarea
-                rows="3"
+                rows="2"
                 class="w-full resize-none border-0 bg-transparent px-2 py-2 text-[15px] leading-7 text-slate-700 outline-none placeholder:text-slate-400"
-                placeholder="Ask for a laptop recommendation by budget, purpose, or specific specs..."
+                placeholder="Ask for another recommendation, like 'best Dell laptop for students under $800'..."
               ></textarea>
 
               <div class="mt-2 flex flex-wrap items-center justify-between gap-3">
@@ -219,10 +290,9 @@ const iconMap = {
 
                 <button
                   type="button"
-                  class="flex items-center gap-2 rounded-full bg-[linear-gradient(180deg,#34a8ff,#1188ff)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(17,136,255,0.25)] transition hover:translate-y-[-1px]"
+                  class="rounded-full bg-[linear-gradient(180deg,#34a8ff,#1188ff)] px-5 py-3 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(17,136,255,0.25)] transition hover:translate-y-[-1px]"
                 >
                   Get recommendation
-                  
                 </button>
               </div>
             </div>
@@ -282,29 +352,6 @@ const iconMap = {
                 </span>
               </div>
             </div>
-          </div>
-
-          <div class="rounded-[28px] border border-slate-200/70 bg-[linear-gradient(180deg,#0f172a,#162845)] p-5 text-white shadow-[0_16px_40px_rgba(15,23,42,0.18)]">
-            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-300">{{ suggestionCard.eyebrow }}</p>
-            <h2 class="mt-2 text-xl font-semibold tracking-[-0.03em]">
-              {{ suggestionCard.title }}
-            </h2>
-            <p class="mt-3 text-sm leading-7 text-slate-300">
-              {{ suggestionCard.description }}
-            </p>
-            <button
-              type="button"
-              class="mt-5 w-full rounded-full bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-            >
-              {{ suggestionCard.buttonLabel }}
-            </button>
-          </div>
-
-          <div class="rounded-[28px] border border-slate-200/70 bg-white/85 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.04)]">
-            <p class="text-xs font-semibold uppercase tracking-[0.22em] text-sky-500">Tips</p>
-            <ul class="mt-3 space-y-3 text-sm leading-7 text-slate-600">
-              <li v-for="tip in tips" :key="tip">{{ tip }}</li>
-            </ul>
           </div>
         </aside>
       </section>
