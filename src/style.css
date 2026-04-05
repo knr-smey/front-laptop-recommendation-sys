@@ -5,6 +5,11 @@
   font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
   color: #0f172a;
   background: #f5f7fb;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -13,6 +18,12 @@ body {
   min-height: 100vh;
   background: #f5f7fb;
   overflow: hidden;
+  transition: background-color 180ms cubic-bezier(0.22, 1, 0.36, 1), color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html.dark body {
+  background: #020617;
+  color: #e2e8f0;
 }
 
 button {
@@ -21,6 +32,19 @@ button {
 
 #app {
   min-height: 100vh;
+}
+
+.theme-transition {
+  transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  .theme-transition {
+    transition: none !important;
+  }
 }
 
 .no-scrollbar {
