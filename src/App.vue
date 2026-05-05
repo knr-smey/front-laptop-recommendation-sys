@@ -4,53 +4,92 @@
     <div class="pointer-events-none absolute bottom-[8%] right-[5%] h-72 w-72 rounded-full bg-[rgba(85,221,196,0.14)] blur-3xl"></div>
 
     <div class="relative z-10 grid h-full grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)_320px]">
-      <aside class="rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,18,32,0.86),rgba(6,12,23,0.92))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
-        <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400/80">
-          Workspace
-        </p>
+      <aside class="flex flex-col h-full rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,18,32,0.86),rgba(6,12,23,0.92))] p-5 shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
 
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between xl:flex-col xl:items-stretch">
-          <div>
-            <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-[#7ce5ce]">
-              AI Buying Copilot
+        <!-- TOP CONTENT -->
+        <div class="flex-1">
+
+          <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400/80">
+            Workspace
+          </p>
+
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between xl:flex-col xl:items-stretch">
+            <div>
+              <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-[#7ce5ce]">
+                AI Buying Copilot
+              </p>
+              <h1 class="max-w-[10ch] font-['Space_Grotesk'] text-3xl font-bold leading-none text-white">
+                Laptop Match Studio
+              </h1>
+            </div>
+
+            <button
+              class="rounded-2xl bg-[linear-gradient(135deg,#f8fafc,#7ce5ce)] px-4 py-3 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(124,229,206,0.2)] transition hover:-translate-y-0.5"
+              @click="newChat"
+            >
+              + New Chat
+            </button>
+          </div>
+
+          <!-- STATS -->
+          <div class="mt-6 grid grid-cols-2 gap-3">
+            <div class="rounded-[20px] border border-white/8 bg-white/4 p-4">
+              <span class="block font-['Space_Grotesk'] text-3xl font-bold text-white">
+                {{ messages.length }}
+              </span>
+              <span class="mt-1 block text-[11px] uppercase tracking-[0.24em] text-slate-400/80">
+                Messages
+              </span>
+            </div>
+
+            <div class="rounded-[20px] border border-white/8 bg-white/4 p-4">
+              <span class="block font-['Space_Grotesk'] text-3xl font-bold text-white">
+                {{ activeFilterCount }}
+              </span>
+              <span class="mt-1 block text-[11px] uppercase tracking-[0.24em] text-slate-400/80">
+                Filters
+              </span>
+            </div>
+          </div>
+
+          <!-- CHAT HISTORY -->
+          <div class="mt-7">
+            <p class="mb-3 text-[11px] uppercase tracking-[0.24em] text-slate-400/80">
+              Recent Chats
             </p>
-            <h1 class="max-w-[10ch] font-['Space_Grotesk'] text-3xl font-bold leading-none text-white">
-              Laptop Match Studio
-            </h1>
+
+            <button
+              v-for="chat in chatHistory"
+              :key="chat.id"
+              class="mt-2 flex w-full items-center gap-3 rounded-[18px] border border-white/8 bg-white/3 px-4 py-3 text-left text-slate-100 transition hover:-translate-y-0.5 hover:border-[#7ce5ce]/35"
+              @click="switchChat(chat.id)"
+            >
+              <span class="h-2.5 w-2.5 rounded-full bg-[linear-gradient(135deg,#7ce5ce,#ff8c69)] shadow-[0_0_14px_rgba(124,229,206,0.55)]"></span>
+              <span>{{ chat.title }}</span>
+            </button>
           </div>
 
-          <button
-            class="rounded-2xl bg-[linear-gradient(135deg,#f8fafc,#7ce5ce)] px-4 py-3 text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(124,229,206,0.2)] transition hover:-translate-y-0.5"
-            @click="newChat"
-          >
-            + New Chat
-          </button>
         </div>
 
-        <div class="mt-6 grid grid-cols-2 gap-3">
-          <div class="rounded-[20px] border border-white/8 bg-white/4 p-4">
-            <span class="block font-['Space_Grotesk'] text-3xl font-bold text-white">{{ messages.length }}</span>
-            <span class="mt-1 block text-[11px] uppercase tracking-[0.24em] text-slate-400/80">Messages</span>
+        <!-- USER ACCOUNT (BOTTOM) -->
+        <div class="mt-6 border-t border-white/10 pt-4 flex items-center gap-3">
+
+          <!-- Avatar -->
+          <div class="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#7ce5ce,#6366f1)] flex items-center justify-center text-sm font-bold text-slate-900">
+            {{ userInitial }}
           </div>
-          <div class="rounded-[20px] border border-white/8 bg-white/4 p-4">
-            <span class="block font-['Space_Grotesk'] text-3xl font-bold text-white">{{ activeFilterCount }}</span>
-            <span class="mt-1 block text-[11px] uppercase tracking-[0.24em] text-slate-400/80">Filters</span>
+
+          <!-- Info -->
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-white">{{ user.name }}</p>
+            <p class="text-[11px] text-slate-400">{{ user.plan }}</p>
           </div>
+
+          <!-- Status -->
+          <div class="h-2 w-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.7)]"></div>
+
         </div>
 
-        <div class="mt-7">
-          <p class="mb-3 text-[11px] uppercase tracking-[0.24em] text-slate-400/80">Recent Chats</p>
-
-          <button
-            v-for="chat in chatHistory"
-            :key="chat.id"
-            class="mt-2 flex w-full items-center gap-3 rounded-[18px] border border-white/8 bg-white/3 px-4 py-3 text-left text-slate-100 transition hover:-translate-y-0.5 hover:border-[#7ce5ce]/35"
-            @click="switchChat(chat.id)"
-          >
-            <span class="h-2.5 w-2.5 rounded-full bg-[linear-gradient(135deg,#7ce5ce,#ff8c69)] shadow-[0_0_14px_rgba(124,229,206,0.55)]"></span>
-            <span>{{ chat.title }}</span>
-          </button>
-        </div>
       </aside>
 
       <main class="flex h-full min-h-0 flex-col overflow-hidden rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(9,18,32,0.86),rgba(6,12,23,0.92))] shadow-[0_24px_60px_rgba(0,0,0,0.32)] backdrop-blur-xl">
@@ -165,6 +204,10 @@ const messages = ref([])
 const inputText = ref('')
 const isTyping = ref(false)
 const messagesContainer = ref(null)
+const user = ref({
+  name: 'Raksmey',
+  plan: 'Pro Plan'
+})
 
 const chatHistory = ref([
   { id: 1, title: 'New Chat' },
@@ -189,6 +232,8 @@ const options = {
 const activeFilterCount = computed(() =>
   Object.values(filters).filter(Boolean).length
 )
+
+const userInitial = computed(() => user.value.name.charAt(0).toUpperCase())
 
 function sendMessage() {
   if (!inputText.value.trim()) return
