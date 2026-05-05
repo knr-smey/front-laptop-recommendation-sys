@@ -10,10 +10,10 @@
         <div class="flex-1">
 
           <p class="mb-4 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-400/80">
-            Workspace
+            Laptop Recommender
           </p>
 
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between xl:flex-col xl:items-stretch">
+          <!-- <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between xl:flex-col xl:items-stretch">
             <div>
               <p class="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-[#7ce5ce]">
                 AI Buying Copilot
@@ -29,7 +29,7 @@
             >
               + New Chat
             </button>
-          </div>
+          </div> -->
 
           <!-- STATS -->
           <div class="mt-6 grid grid-cols-2 gap-3">
@@ -72,22 +72,54 @@
         </div>
 
         <!-- USER ACCOUNT (BOTTOM) -->
-        <div class="mt-6 border-t border-white/10 pt-4 flex items-center gap-3">
+        <div ref="accountMenuRef" class="relative mt-6 border-t border-white/10 pt-4">
+          <button class="flex w-full items-center gap-3 rounded-[20px] px-2 py-2 text-left transition hover:bg-white/4" @click="toggleAccountMenu">
+            <div class="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#7ce5ce,#6366f1)] flex items-center justify-center text-sm font-bold text-slate-900">
+              {{ userInitial }}
+            </div>
 
-          <!-- Avatar -->
-          <div class="h-10 w-10 rounded-full bg-[linear-gradient(135deg,#7ce5ce,#6366f1)] flex items-center justify-center text-sm font-bold text-slate-900">
-            {{ userInitial }}
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-white">{{ user.name }}</p>
+              <p class="text-[11px] text-slate-400">{{ user.plan }}</p>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="h-2 w-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.7)]"></div>
+              <svg class="h-4 w-4 text-slate-400 transition" :class="isAccountMenuOpen ? 'rotate-180' : ''" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.51a.75.75 0 0 1-1.08 0l-4.25-4.51a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </button>
+
+          <div v-if="isAccountMenuOpen" class="absolute bottom-full left-0 z-30 mb-3 w-[260px] rounded-[22px] border border-white/10 bg-[rgba(32,39,53,0.96)] p-4 shadow-[0_24px_50px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+            <div class="flex items-center gap-3 rounded-[16px] bg-white/4 px-3 py-3">
+              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#34d399,#38bdf8)] text-sm font-bold text-white">
+                {{ userInitial }}
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-white">{{ user.name }}</p>
+                <p class="text-xs text-slate-400">{{ user.plan }}</p>
+              </div>
+              <svg class="h-4 w-4 text-slate-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M7.22 4.97a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L10.94 10 7.22 6.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+              </svg>
+            </div>
+
+            <div class="my-3 h-px bg-white/10"></div>
+
+            <button v-for="item in accountMenuItems" :key="item.label" class="flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-left text-slate-100 transition hover:bg-white/6" @click="handleAccountAction(item.label)">
+              <span class="w-5 text-center text-slate-300">{{ item.icon }}</span>
+              <span class="flex-1">{{ item.label }}</span>
+              <span v-if="item.hasChevron" class="text-slate-400">›</span>
+            </button>
+
+            <div class="my-3 h-px bg-white/10"></div>
+
+            <button class="flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-left text-rose-200 transition hover:bg-white/6" @click="handleAccountAction('Log out')">
+              <span class="w-5 text-center">↪</span>
+              <span>Log out</span>
+            </button>
           </div>
-
-          <!-- Info -->
-          <div class="flex-1">
-            <p class="text-sm font-semibold text-white">{{ user.name }}</p>
-            <p class="text-[11px] text-slate-400">{{ user.plan }}</p>
-          </div>
-
-          <!-- Status -->
-          <div class="h-2 w-2 rounded-full bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.7)]"></div>
-
         </div>
 
       </aside>
@@ -145,8 +177,8 @@
           </div>
         </div>
 
-        <div class="border-t border-white/8 bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.02))] px-5 pb-8 pt-4 sm:px-6 sm:pb-10">
-          <div class="mx-auto flex w-full max-w-4xl items-center gap-3 rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,35,0.96),rgba(8,14,26,0.98))] px-3 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.28)] ring-1 ring-white/5 backdrop-blur-xl">
+        <div class="border-t border-white/8 bg-[linear-gradient(180deg,transparent,rgba(255,255,255,0.02))] px-5 pb-8 pt-4 sm:px-6">
+          <div class="flex w-full items-center gap-3 rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(12,20,35,0.96),rgba(8,14,26,0.98))] px-3 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.28)] ring-1 ring-white/5 backdrop-blur-xl">
             <div class="flex min-w-0 flex-1 items-center gap-3 rounded-[20px] border border-white/6 bg-black/20 px-4 py-1.5">
               <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/6 text-lg text-[#7ce5ce]">
                 ✦
@@ -198,12 +230,14 @@
 </template>
 
 <script setup>
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 const messages = ref([])
 const inputText = ref('')
 const isTyping = ref(false)
 const messagesContainer = ref(null)
+const accountMenuRef = ref(null)
+const isAccountMenuOpen = ref(false)
 const user = ref({
   name: 'Raksmey',
   plan: 'Pro Plan'
@@ -228,6 +262,14 @@ const options = {
   ram: ['8GB', '16GB', '32GB'],
   type: ['Gaming', 'Student', 'Business']
 }
+
+const accountMenuItems = [
+  { label: 'Upgrade plan', icon: '✦', hasChevron: false },
+  // { label: 'Personalization', icon: '◔', hasChevron: false },
+  { label: 'Profile', icon: '◉', hasChevron: false },
+  { label: 'Settings', icon: '⚙', hasChevron: false },
+  { label: 'Help', icon: '?', hasChevron: true }
+]
 
 const activeFilterCount = computed(() =>
   Object.values(filters).filter(Boolean).length
@@ -296,6 +338,18 @@ function clearFilters() {
   })
 }
 
+function toggleAccountMenu() {
+  isAccountMenuOpen.value = !isAccountMenuOpen.value
+}
+
+function closeAccountMenu() {
+  isAccountMenuOpen.value = false
+}
+
+function handleAccountAction() {
+  closeAccountMenu()
+}
+
 function formatLabel(value) {
   return value.charAt(0).toUpperCase() + value.slice(1)
 }
@@ -324,5 +378,19 @@ watch(isTyping, (typing) => {
   if (typing) {
     scrollToLatest()
   }
+})
+
+function handleWindowClick(event) {
+  if (!accountMenuRef.value?.contains(event.target)) {
+    closeAccountMenu()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', handleWindowClick)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('click', handleWindowClick)
 })
 </script>
