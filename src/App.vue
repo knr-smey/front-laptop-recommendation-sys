@@ -4,7 +4,7 @@
     <div class="pointer-events-none absolute bottom-[8%] right-[5%] h-72 w-72 rounded-full bg-[rgba(85,221,196,0.14)] blur-3xl"></div>
 
     <div class="relative z-10 grid h-full grid-cols-1 gap-5 xl:grid-cols-[280px_minmax(0,1fr)_320px]">
-      <Sidebar :messagesLength="messages.length" :activeFilterCount="activeFilterCount" :chatHistory="chatHistory" :user="user" :userInitial="user.name.charAt(0).toUpperCase()" :menuItems="ACCOUNT_MENU" @account-action="handleAccountAction" @switch-chat="switchChat" />
+      <Sidebar :messagesLength="messages.length" :activeFilterCount="activeFilterCount" :chatHistory="chatHistory" :activeChatId="activeChatId" :user="user" :userInitial="user.name.charAt(0).toUpperCase()" :menuItems="ACCOUNT_MENU" @account-action="handleAccountAction" @switch-chat="switchChat" @new-chat="newChat" />
 
       <ChatWindow :messages="messages" :isTyping="isTyping" ref="chatWindowRef">
         <template #input>
@@ -27,15 +27,10 @@ import { useChat } from './composables/useChat'
 import { useFilters } from './composables/useFilters'
 import { ACCOUNT_MENU } from './constants'
 
-const { messages, inputText, isTyping, sendMessage, newChat, switchChat } = useChat()
+const { messages, inputText, isTyping, chatHistory, activeChatId, sendMessage, newChat, switchChat } = useChat()
 const { filters, options, setFilter, clearFilters, activeFilterCount } = useFilters()
 
 const user = ref({ name: 'Raksmey', plan: 'Pro Plan' })
-const chatHistory = ref([
-  { id: 1, title: 'New Chat' },
-  { id: 2, title: 'Gaming under $1200' },
-  { id: 3, title: 'Business travel picks' }
-])
 
 const chatWindowRef = ref(null)
 

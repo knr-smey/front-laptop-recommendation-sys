@@ -32,13 +32,39 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import ChatMessage from './ChatMessage.vue'
 import EmptyState from './EmptyState.vue'
 
 const { messages, isTyping } = defineProps({ messages: Array, isTyping: Boolean })
 
 const container = ref(null)
+
+async function scrollToBottom() {
+  await nextTick()
+
+  if (!container.value) return
+
+  container.value.scrollTop = container.value.scrollHeight
+}
+
+watch(
+  () => messages?.length ?? 0,
+  () => {
+    scrollToBottom()
+  },
+  { flush: 'post' }
+)
+
+watch(
+  () => isTyping,
+  (typing) => {
+    if (typing) {
+      scrollToBottom()
+    }
+  },
+  { flush: 'post' }
+)
 
 // expose container so parent can use it with useAutoScroll
 defineExpose({ container })

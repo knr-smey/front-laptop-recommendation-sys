@@ -16,11 +16,24 @@
       </div>
 
       <div class="mt-7">
-        <p class="mb-3 text-[11px] uppercase tracking-[0.24em] text-slate-400/80">Recent Chats</p>
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <p class="text-[11px] uppercase tracking-[0.24em] text-slate-400/80">Recent Chats</p>
+          <button class="rounded-full border border-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#7ce5ce] transition hover:border-[#7ce5ce]/40 hover:bg-[#7ce5ce]/8" @click="$emit('new-chat')">New</button>
+        </div>
 
-        <button v-for="chat in chatHistory" :key="chat.id" class="mt-2 flex w-full items-center gap-3 rounded-[18px] border border-white/8 bg-white/3 px-4 py-3 text-left text-slate-100 transition hover:-translate-y-0.5 hover:border-[#7ce5ce]/35" @click="$emit('switch-chat', chat.id)">
+        <button
+          v-for="chat in chatHistory"
+          :key="chat.id"
+          :class="[
+            'mt-2 flex w-full items-center gap-3 rounded-[18px] border px-4 py-3 text-left text-slate-100 transition hover:-translate-y-0.5',
+            activeChatId === chat.id
+              ? 'border-[#7ce5ce]/40 bg-[linear-gradient(135deg,rgba(124,229,206,0.12),rgba(255,140,105,0.08))] shadow-[0_10px_30px_rgba(0,0,0,0.18)]'
+              : 'border-white/8 bg-white/3 hover:border-[#7ce5ce]/35'
+          ]"
+          @click="$emit('switch-chat', chat.id)"
+        >
           <span class="h-2.5 w-2.5 rounded-full bg-[linear-gradient(135deg,#7ce5ce,#ff8c69)] shadow-[0_0_14px_rgba(124,229,206,0.55)]"></span>
-          <span>{{ chat.title }}</span>
+          <span class="truncate">{{ chat.title }}</span>
         </button>
       </div>
     </div>
@@ -36,6 +49,7 @@ const props = defineProps({
   messagesLength: { type: Number, required: true },
   activeFilterCount: { type: Number, required: true },
   chatHistory: { type: Array, required: true },
+  activeChatId: { type: Number, required: true },
   user: { type: Object, required: true },
   userInitial: { type: String, required: true },
   menuItems: { type: Array, required: true }
